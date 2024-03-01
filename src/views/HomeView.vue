@@ -9,26 +9,39 @@ export default {
       checkStatus: false,
     }
   },
+  
+  mounted(){
+
+    if (localStorage.getItem('msg')) {
+      this.arr = JSON.parse(localStorage.getItem('msg'));
+    }
+  },
 
   methods: {
     addEventData() {
       let message = this.inputValue;
+      let id = this.arr.length ??0;
       // let checkData = this.checkboxValue;
       if (!message) {
         alert('請重新輸入');
         return
       }
       const addArr = {
-        eventId: this.id++,
+        eventId: id + 1,
         text: message,
         checkStatus: false,
       }
       this.arr.push(addArr);
+      console.log(this.arr);
+      this.text = '';
+      localStorage.setItem('msg', JSON.stringify(this.arr));
     },
-    eventDataDelete(eventId) {
+    eventDataDelete(i) {
       // console.log(eventId);
       if (confirm('是否要刪除') == true) {
-        this.arr = this.arr.filter((item) => item.eventId !== eventId)
+        this.arr = this.arr.filter((item) => item.eventId !== i)
+        // this.arr.splice(i,1);
+        localStorage.setItem('msg', JSON.stringify(this.arr));
       }
     },
 
@@ -45,11 +58,12 @@ export default {
           }
         }
       })
+      localStorage.setItem('msg', JSON.stringify(this.arr));
     },
   },
-
+//預處理妳拿到的資料，他有暫存的功能，所以我們可以拿整包的資料，利用判斷式把我們的資料做篩選
   computed: {
-    filterArrdata() {
+    filterArrData() {
       if (this.selectedTab === '') {
         return this.arr;
       }
@@ -71,9 +85,9 @@ export default {
     <div class="search-btn mb-5">
       <button class="all text-white bg-blue-500  py-1 px-4 mr-2 " type="button" :class="{ 'active': selectedTab === '' }"
         @click="changeTab('')">全部</button>
-      <button class="is-todo  text-white bg-blue-500  py-1 px-4 mr-2" type="button"
+      <button class=" text-white bg-blue-500  py-1 px-4 mr-2" type="button"
         :class="{ 'active': selectedTab === true }" @click="changeTab(true)">已執行</button>
-      <button class="not-todo  text-white bg-blue-500  py-1 px-4 mr-2" type="button"
+      <button class=" text-white bg-blue-500  py-1 px-4 mr-2" type="button"
         :class="{ 'active': selectedTab === false }" @click="changeTab(false)">未執行</button>
     </div>
 
@@ -85,7 +99,7 @@ export default {
           <th>功能</th>
         </tr>
       </thead>
-      <tbody v-for="(item, index) in filterArrdata" :key="index" class="data-show">
+      <tbody v-for="(item, index) in filterArrData" :key="item.eventId" class="data-show">
         <tr>
           <td>
             <input v-model="item.checkStatus" type="checkbox">
@@ -105,5 +119,8 @@ export default {
 <style scoped>
 th,td {
   border-bottom: 1px solid black;
-};
-;</style>
+}
+.active{
+  @apply bg-yellow-500 text-black;
+}
+</style>
